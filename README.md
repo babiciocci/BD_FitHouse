@@ -28,4 +28,4 @@ Para a implementação do projeto, serão utilizados três bancos de dados difer
 - **Cassandra** (NoSQL - DB1)  
 - **MongoDB** (NoSQL - DB2)  
 
-A escolha dos bancos de dados foi feita com o propósito de explorar novas tecnologias. Pelo menos dois deles são bancos que ainda não foram utilizados pelos integrantes do grupo, permitindo que seja ampliado o conhecimento e experiência na área.  
+A escolha dos bancos de dados foi feita com o propósito de explorar novas tecnologias, pelo menos dois deles são bancos que ainda não foram utilizados pelos integrantes do grupo, permitindo que seja ampliado o conhecimento e experiência na área.  
