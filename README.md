@@ -39,24 +39,32 @@ A escolha dos bancos de dados foi feita com o propósito de explorar novas tecno
 - Consultas rápidas por usuário e período
 - Dados densos e com acesso massivo (ex.: treinos do dia)
 
--------------------------------
-CODIGO CASSANDRA
+# 📦 Passo a Passo para Utilização do Cassandra via Docker
 
-CREATE KEYSPACE fitstore
-WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+## Pré-requisitos
 
-USE fitstore;
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) instalado em sua máquina.
 
-CREATE TABLE treinos_usuario (
-    id_usuario UUID,
-    data DATE,
-    id_treino UUID,
-    grupo_muscular TEXT,
-    exercicio TEXT,
-    series INT,
-    repeticoes INT,
-    carga INT,
-    PRIMARY KEY ((id_usuario), data, id_treino)
-) WITH CLUSTERING ORDER BY (data DESC);
+## 🚀 Instruções
 
--------------------------------
+1. **Baixe e instale o Docker Desktop**  
+   👉 [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+
+2. **Abra o terminal e execute o seguinte comando para iniciar o container do Cassandra**:
+
+   ```bash
+   docker run --name cassandra_db -p 9042:9042 -d cassandra:4.1
+   ```
+
+3. **Verifique se a imagem foi baixada corretamente**:
+
+   ```bash
+   docker images
+   ```
+
+4. **Acesse o shell interativo do Cassandra (CQLSH)**:
+
+   ```bash
+   docker exec -it cassandra_db cqlsh
+   ```
+
