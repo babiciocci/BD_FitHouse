@@ -68,3 +68,8 @@ A escolha dos bancos de dados foi feita com o propósito de explorar novas tecno
    docker exec -it cassandra_db cqlsh
    ```
 
+5. **Caso queira parar o Cassandra**, utilize:
+
+   ```bash
+   docker-compose down
+   ```
