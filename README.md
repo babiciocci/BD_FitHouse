@@ -38,3 +38,25 @@ A escolha dos bancos de dados foi feita com o propósito de explorar novas tecno
 - Séries e execuções por data
 - Consultas rápidas por usuário e período
 - Dados densos e com acesso massivo (ex.: treinos do dia)
+
+-------------------------------
+CODIGO CASSANDRA
+
+CREATE KEYSPACE fitstore
+WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+
+USE fitstore;
+
+CREATE TABLE treinos_usuario (
+    id_usuario UUID,
+    data DATE,
+    id_treino UUID,
+    grupo_muscular TEXT,
+    exercicio TEXT,
+    series INT,
+    repeticoes INT,
+    carga INT,
+    PRIMARY KEY ((id_usuario), data, id_treino)
+) WITH CLUSTERING ORDER BY (data DESC);
+
+-------------------------------
