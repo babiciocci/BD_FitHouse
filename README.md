@@ -29,3 +29,12 @@ Para a implementação do projeto, serão utilizados três bancos de dados difer
 - **MongoDB** (NoSQL - DB2)  
 
 A escolha dos bancos de dados foi feita com o propósito de explorar novas tecnologias, pelo menos dois deles são bancos que ainda não foram utilizados pelos integrantes do grupo, permitindo que seja ampliado o conhecimento e experiência na área.  
+
+
+## O que será armazenado no Cassandra (DB1):
+
+-> Gestão de Treinos
+- Históricos de treino dos usuários
+- Séries e execuções por data
+- Consultas rápidas por usuário e período
+- Dados densos e com acesso massivo (ex.: treinos do dia)
