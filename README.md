@@ -39,7 +39,7 @@ A escolha dos bancos de dados foi feita com o propósito de explorar novas tecno
 - Consultas rápidas por usuário e período
 - Dados densos e com acesso massivo (ex.: treinos do dia)
 
-# 📦 Passo a Passo para Utilização do Cassandra via Docker
+# 📦 Passo a Passo para Utilização do Docker
 
 ## Pré-requisitos
 
