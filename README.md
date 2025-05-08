@@ -73,3 +73,43 @@ A escolha dos bancos de dados foi feita com o propósito de explorar novas tecno
    ```bash
    exit
    ```
+   
+# 🐬 MySQL com Docker + Workbench
+
+## 🎥 Vídeo de apoio  
+Caso esqueça algum passo, veja o vídeo:  
+[📺 Tutorial MySQL no Docker + Workbench](https://youtu.be/a5ul8o76Hqw?si=DICC2MKbN59JIyoN)
+
+---
+
+## 🛠️ Instalar o MySQL Workbench
+
+Baixe o instalador oficial:  
+🔗 [https://dev.mysql.com/downloads/windows/installer/8.0.html](https://dev.mysql.com/downloads/windows/installer/8.0.html)
+
+Durante a instalação:
+
+- Selecione a opção **Custom**
+- Instale a **versão mais atual** de:
+  - **MySQL Server**
+  - **MySQL Workbench**
+  - **MySQL Examples and Samples**
+- Defina uma **senha segura** para o usuário `root`
+
+---
+
+## 🐳 Inicializar o MySQL no Docker
+
+### Fazer linha por linha
+
+```bash
+docker pull mysql
+
+docker run -d \
+  --name mysql-db \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=admin \
+  mysql
+
+docker exec -it mysql-db mysql -u root -p
+```
