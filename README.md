@@ -1,35 +1,41 @@
-# Fitstore: Sistema para Gestão de Treinos e Nutrição
+# FitHouse: Sistema para Gestão de Treinos e Nutrição
+FitHouse é um aplicativo focado na gestão de treinos e planejamento alimentar, criado para ajudar usuários a alcançarem seus objetivos de saúde, desempenho e bem-estar. O sistema combina diferentes tecnologias e bancos de dados para entregar uma experiência. Este projeto surgiu a partir do interesse dos integrantes do grupo por academia e bem-estar.
 
-## 📌 Sobre o Projeto  
-Este projeto surgiu a partir do interesse dos integrantes do grupo por academia e bem-estar. O objetivo é desenvolver um sistema completo que auxilie nos treinos, na nutrição e na compra de produtos relacionados, abrangendo todas as necessidades para um desempenho otimizado.  
+## 🧩 Funcionalidades
 
-## 🔥 Funcionalidades  
-O sistema será dividido em três principais módulos:  
+### 🍎 Planejamento Alimentar
+- Base de Dados Nutricional:
+Informações completas sobre alimentos: calorias, macronutrientes e classificação (proteínas, carboidratos, gorduras, etc.).
+- Planos Personalizados:
+Geração de planos alimentares com base nas metas do usuário (ganho de massa, emagrecimento, manutenção).
 
-### 🛒 Loja Virtual  
-- Venda de roupas esportivas (camisetas, leggings, tênis, luvas etc.)
-- Venda de equipamentos para treino (halteres, colchonetes, faixas elásticas, barras etc.)
-- Venda de suplementos (Whey Protein, Creatina, pré-treinos etc.)  
+## 🏋️ Gestão de Treinos
+- Base de Dados de Exercícios:
+Informações sobre grupo muscular trabalhado e equipamentos.
+- Treinos Personalizados:
+Criação de treinos ajustados aos objetivos do usuário.
+- Geração Dinâmica de Rotinas:
+Sistema monta treinos com base nos grupos musculares e foco.
 
-### 🍎 Planejamento Alimentar  
-- Base de dados com diversos alimentos, contendo seus valores nutricionais e classificações (ex.: proteína, carboidrato, gordura, etc.)  
-- Geração de um plano alimentar personalizado para cada usuário, levando em conta suas metas individuais (ganho de massa, emagrecimento, manutenção, etc.)  
-- Ajuste automático das quantidades de cada alimento com base nos objetivos do usuário  
+## 🗄️ Arquitetura & Bancos de Dados
+O FitHouse utiliza três bancos de dados para tirar o melhor de cada tecnologia:
 
-### 🏋️‍♂️ Gestão de Treinos  
-- Base de dados com exercícios, contendo informações como: grupo muscular trabalhado, equipamento necessário, nível de dificuldade e instruções de execução  
-- Criação de treinos personalizados para cada usuário, adaptando a carga, volume e intensidade conforme a experiência e objetivo (hipertrofia, resistência, força, etc.)  
-- Geração de treinos com base nos grupos musculares selecionados e no foco do usuário  
+- 🐬 MySQL (Relacional):
+Armazena dados estruturados e com relações fixas, como cadastros de usuários.
 
-## 🗄️ Tecnologias e Bancos de Dados 
-Para a implementação do projeto, serão utilizados três bancos de dados diferentes:  
+- ⚡ Cassandra (NoSQL - DB1):
+Ideal para grandes volumes de dados distribuídos com alta disponibilidade, como planos alimentares personalizados.
 
-- **MySQL** (Relacional - RDB)  
-- **Cassandra** (NoSQL - DB1)  
-- **MongoDB** (NoSQL - DB2)  
+- 🍃 MongoDB (NoSQL - DB2):
+Ótimo para armazenar dados com estrutura flexível, como treinos mensais.
 
+Essa arquitetura envolve microserviços (S1, S2, S3) e comunicação via Docker e Kafka para garantir escalabilidade e desacoplamento entre os módulos.
 A escolha dos bancos de dados foi feita com o propósito de explorar novas tecnologias, pelo menos dois deles são bancos que ainda não foram utilizados pelos integrantes do grupo, permitindo que seja ampliado o conhecimento e experiência na área.  
 
+## 🛠️ Tecnologias Utilizadas
+- Backend: Python.
+- Integração de Bancos: MySQL, Cassandra e MongoDB.
+- Arquitetura: Microserviços + Mensageria (Pub/Sub)
 
 ## O que será armazenado no Cassandra (DB1):
 
