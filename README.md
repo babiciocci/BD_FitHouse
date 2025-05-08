@@ -111,7 +111,7 @@ docker exec -it mysql-db mysql -u root -p
 
 ### Fazer linha por linha
 
-Usar o docker-compose-mysql.yml para poder rodar e dps executa-lo
+Usar o docker-compose-mongodb.yml para poder rodar e dps executa-lo
 ```bash
 docker exec -it mongodb mongosh -u root -p root
 ```
