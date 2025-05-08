@@ -102,14 +102,16 @@ Durante a instalação:
 
 ### Fazer linha por linha
 
+Usar o docker-compose-mysql.yml para poder rodar e dps executa-lo
 ```bash
-docker pull mysql
-
-docker run -d \
-  --name mysql-db \
-  -p 3306:3306 \
-  -e MYSQL_ROOT_PASSWORD=admin \
-  mysql
-
 docker exec -it mysql-db mysql -u root -p
+```
+
+## 📦 Inicializar o MONGODB no Docker
+
+### Fazer linha por linha
+
+Usar o docker-compose-mysql.yml para poder rodar e dps executa-lo
+```bash
+docker exec -it mongodb mongosh -u root -p root
 ```
