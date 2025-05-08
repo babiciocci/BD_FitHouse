@@ -1,0 +1,22 @@
+RODAR DOCKER COMPOSE (CUIDADO COM A PORTA)
+
+docker-compose -f docker-compose-mysql.yml up -d
+docker pull mysql (OUTRA OPCAO)
+
+VER SE O CONTAINER EXISTE
+
+docker ps -a
+
+EXECUTAR MYSQL
+
+docker exec -it mysql bash
+
+EXECUTAR ESSE PARA ENTRAR NO MYSQL
+
+mysql -u root -p
+
+COLOCAR SENHA
+
+root
+
+ja esta dentro
