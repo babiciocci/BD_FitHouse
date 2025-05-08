@@ -1,1 +1,3 @@
-a
+docker-compose -f cassandra.yml up -d
+docker-compose -f mysql.yml up -d
+docker-compose -f mongodb.yml up -d
