@@ -1,0 +1,125 @@
+SISTEMA COMPLETO
+
+PASSO 1:
+
+mkdir kafka-sistema-completo && cd kafka-sistema-completo
+
+PASSO 2: criar o docker-compose.yml
+
+version: '3'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+PASSO 3: 
+
+docker-compose up -d
+
+docker ps
+
+PASSO 4:  criar os topicos
+
+docker exec -it kafka-sistema-completo-kafka-1 bash
+
+kafka-topics --create --topic s1-s3 --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+kafka-topics --create --topic s1-s2 --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+kafka-topics --create --topic s2-s3 --bootstrap-server localhost:9092 --partitions 1 --replication-factor 1
+
+PASSO 5:
+
+pip install kafka-python
+
+PASSO 6: criar pythons
+
+s1.py:
+
+from kafka import KafkaProducer
+import json
+import time
+
+producer = KafkaProducer(
+    bootstrap_servers='localhost:9092',
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+)
+
+while True:
+    mensagem = {"sistema": "S1", "dados": "Dado importante"}
+    # Envia tanto para S3 quanto para S2
+    producer.send('s1-s3', mensagem)
+    producer.send('s1-s2', mensagem)
+    print("S1 enviou:", mensagem)
+    time.sleep(5)
+
+s2.py:
+
+from kafka import KafkaConsumer, KafkaProducer
+import json
+import time
+
+consumer = KafkaConsumer(
+    's1-s2',
+    bootstrap_servers='localhost:9092',
+    value_deserializer=lambda m: json.loads(m.decode('utf-8')),
+    auto_offset_reset='earliest',
+    group_id='grupo-s2'
+)
+
+producer = KafkaProducer(
+    bootstrap_servers='localhost:9092',
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+)
+
+print("S2 está escutando mensagens do S1...")
+
+for msg in consumer:
+    recebido = msg.value
+    print("S2 recebeu:", recebido)
+    nova_mensagem = {
+        "sistema": "S2",
+        "dados": f"[Repassado pelo S2]: {recebido['dados']}"
+    }
+    producer.send('s2-s3', nova_mensagem)
+    print("S2 enviou para S3:", nova_mensagem)
+    time.sleep(2)
+
+
+s3.py:
+
+from kafka import KafkaConsumer
+import json
+
+consumer = KafkaConsumer(
+    's1-s3',
+    's2-s3',
+    bootstrap_servers='localhost:9092',
+    value_deserializer=lambda m: json.loads(m.decode('utf-8')),
+    auto_offset_reset='earliest',
+    group_id='grupo-s3'
+)
+
+print("S3 está ouvindo mensagens de S1 e S2...")
+
+for msg in consumer:
+    print(f"S3 recebeu do tópico '{msg.topic}':", msg.value)
+
+
+ULTIMO PASSO: rodar os 3 em paralelo no terminal
+
+python s1.py
+python s2.py
+python s3.py
+
