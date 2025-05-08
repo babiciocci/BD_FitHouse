@@ -53,7 +53,7 @@ A escolha dos bancos de dados foi feita com o propósito de explorar novas tecno
 2. **Abra o terminal e execute o seguinte comando para iniciar o container do Cassandra**:
 
    ```bash
-   docker run --name cassandra_db -p 9042:9042 -d cassandra:4.1
+     docker run --name cassandra-container -d -p 9042:9042 cassandra:latest
    ```
 
 3. **Verifique se a imagem foi baixada corretamente**:
