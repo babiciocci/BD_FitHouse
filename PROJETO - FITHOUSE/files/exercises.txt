@@ -1,0 +1,50 @@
+Agachamento livre, Inferiores, Quadriceps
+Leg press 45, Inferiores, Quadriceps
+Cadeira extensora, Inferiores, Quadriceps
+Cadeira flexora, Inferiores, Posterior de coxa
+Stiff com halteres, Inferiores, Posterior de coxa
+Elevacao de quadril, Inferiores, Gluteos
+Avanco com halteres, Inferiores, Gluteos
+Panturrilha em pe, Inferiores, Panturrilhas
+Panturrilha sentado, Inferiores, Panturrilhas
+Cadeira abdutora, Inferiores, Abdutores
+Supino reto com barra, Superiores, Peitoral maior
+Supino inclinado com halteres, Superiores, Peitoral superior
+Crucifixo reto, Superiores, Peitoral
+Desenvolvimento com barra, Superiores, Ombros
+Elevacao lateral, Superiores, Ombros
+Elevacao frontal, Superiores, Ombros
+Remada curvada, Superiores, Dorsal
+Remada unilateral com halteres, Superiores, Dorsal
+Puxada frontal, Superiores, Dorsal
+Puxada atras da nuca, Superiores, Dorsal
+Barra fixa, Superiores, Dorsal
+Rosca direta com barra, Superiores, Biceps
+Rosca alternada, Superiores, Biceps
+Rosca martelo, Superiores, Braquial
+Triceps pulley, Superiores, Triceps
+Triceps testa, Superiores, Triceps
+Triceps banco, Superiores, Triceps
+Crucifixo inverso, Superiores, Posterior de ombro
+Remada alta, Superiores, Trapezio
+Prancha isometrica, Abdominais, Reto abdominal
+Abdominal tradicional, Abdominais, Reto abdominal
+Abdominal infra, Abdominais, Infra abdominal
+Abdominal supra, Abdominais, Reto abdominal
+Abdominal lateral, Abdominais, Obliquos
+Abdominal bicicleta, Abdominais, Obliquos
+Prancha lateral, Abdominais, Obliquos
+Escalador (mountain climber), Abdominais, Core
+Prancha com toque no ombro, Abdominais, Core
+Superman, Abdominais, Lombar
+Hiperextensao lombar, Abdominais, Lombar
+Remada baixa, Superiores, Dorsal
+Encolhimento de ombros, Superiores, Trapezio
+Voador, Superiores, Peitoral
+Cross over, Superiores, Peitoral
+Pull over com halteres, Superiores, Peitoral
+Flexao de bracos, Superiores, Peitoral
+Flexao diamante, Superiores, Triceps
+Esteira, Cardio, Coracao
+Escada, Cardio, Coracao
+Bicicleta, Cardio, Coracao

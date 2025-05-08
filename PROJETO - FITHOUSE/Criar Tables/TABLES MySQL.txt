@@ -1,0 +1,7 @@
+CREATE TABLE usuario (
+    id INT PRIMARY KEY,
+    nome VARCHAR(255) NOT NULL,
+    data_registro DATE NOT NULL,
+    foco VARCHAR(255) NOT NULL
+);
+

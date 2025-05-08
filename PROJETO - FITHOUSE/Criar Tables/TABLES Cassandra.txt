@@ -1,0 +1,15 @@
+CREATE TABLE dieta (
+    id int PRIMARY KEY,
+    tipo_dieta text,
+    cafe_manha list<text>,
+    almoco list<text>,
+    cafe_tarde list<text>,
+    jantar list<text>,
+    ceia list<text>
+);
+
+CREATE TABLE dieta_usuario (
+    id int PRIMARY KEY,
+    id_dieta int,
+    id_usuario int
+);

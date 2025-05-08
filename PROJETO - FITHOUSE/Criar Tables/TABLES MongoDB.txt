@@ -1,0 +1,37 @@
+db.createCollection("treino", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["id"],
+      properties: {
+        id: { bsonType: "int" },
+        exercise_1: { bsonType: "string" },
+        exercise_2: { bsonType: "string" },
+        exercise_3: { bsonType: "string" },
+        exercise_4: { bsonType: "string" },
+        exercise_5: { bsonType: "string" },
+        exercise_6: { bsonType: "string" }
+      }
+    }
+  }
+});
+
+db.createCollection("treino_usuario", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["id", "id_usuario", "id_treino"],
+      properties: {
+        id: { bsonType: "int" },
+        id_usuario: { bsonType: "int" },
+        id_treino: { bsonType: "int" },
+        treino_seg: { bsonType: "string" },
+        treino_ter: { bsonType: "string" },
+        treino_qua: { bsonType: "string" },
+        treino_qui: { bsonType: "string" },
+        treino_sex: { bsonType: "string" },
+        treino_sab: { bsonType: "string" }
+      }
+    }
+  }
+});
