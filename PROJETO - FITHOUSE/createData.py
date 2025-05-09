@@ -183,23 +183,25 @@ def createWorkout(type):
     workout = []
 
     # Obtemos um conjunto de exercícios para criar um treino.
-    for exercise in range(0, 5):
-        if type == "inf":
-            exercise = exercises_inf[random.randint(0, len(exercises_inf) - 1)]
-            qty_rep_temp = qty_rep[random.randint(0, len(qty_rep) - 1)]
-            workout.append([exercise, qty_rep_temp])
-        if type == "sup":
-            exercise = exercises_sup[random.randint(0, len(exercises_sup) - 1)]
-            qty_rep_temp = qty_rep[random.randint(0, len(qty_rep) - 1)]
-            workout.append([exercise, qty_rep_temp])
-        if type == "abs":
-            exercise = exercises_abs[random.randint(0, len(exercises_abs) - 1)]
-            qty_rep_temp = qty_rep[random.randint(0, len(qty_rep) - 1)]
-            workout.append([exercise, qty_rep_temp])
-        if type == "cardio":
+    # Se for cardio, só um basta pro dia.
+    if type == "cardio":
             exercise = exercises_cardio[random.randint(0, len(exercises_cardio) - 1)]
             qty_cardio_temp = qty_cardio[random.randint(0, len(qty_cardio) - 1)]
             workout.append([exercise, qty_cardio_temp])
+    else:
+        for exercise in range(0, 5):
+            if type == "inf":
+                exercise = exercises_inf[random.randint(0, len(exercises_inf) - 1)]
+                qty_rep_temp = qty_rep[random.randint(0, len(qty_rep) - 1)]
+                workout.append([exercise, qty_rep_temp])
+            if type == "sup":
+                exercise = exercises_sup[random.randint(0, len(exercises_sup) - 1)]
+                qty_rep_temp = qty_rep[random.randint(0, len(qty_rep) - 1)]
+                workout.append([exercise, qty_rep_temp])
+            if type == "abs":
+                exercise = exercises_abs[random.randint(0, len(exercises_abs) - 1)]
+                qty_rep_temp = qty_rep[random.randint(0, len(qty_rep) - 1)]
+                workout.append([exercise, qty_rep_temp])
             
     # Adiciona o ID à lista de ID's existentes para evitar duplicatas no futuro.
     existingID.append(workout_id)
@@ -247,7 +249,7 @@ def createWorkoutUser():
             while workout[1][0][0][1] != "Cardio":
                 workout = workouts[random.randint(0, len(workouts) - 1)]
 
-        # Obtemos o id da dieta.
+        # Obtemos o id do treino.
         workout_id = workout[0]
         # Adiciona os detalhes do treino do usuário na lista temporária de treino.
         workout_user_temp.append(workout_id)
@@ -255,7 +257,7 @@ def createWorkoutUser():
     # Adiciona o ID do treino à lista de ID's existentes para evitar duplicatas no futuro.
     existingID.append(workoutUser_id)
     # Adiciona os detalhes da dieta do usuário na lista de dietas de usuário.
-    workout_user.append([workoutUser_id, user_id, workout_user_temp])
+    workout_user.append([workoutUser_id, user_id, workout_id, workout_user_temp])
 
     user[5].append(workout_user_temp)
     # Retorna o ID do treino do usuário, o ID do usuário e o ID do treino.
@@ -397,28 +399,39 @@ def createExportCodeMongoDB(workouts, workout_users):
     code_archive.write("db.treino.deleteMany({});\n")
 
     for i in workouts:
-        doc = {
-            "id": i[0],
-            "exercise_1": f"{i[1][0][0][0]}, {i[1][0][1]}",
-            "exercise_2": f"{i[1][1][0][0]}, {i[1][1][1]}",
-            "exercise_3": f"{i[1][2][0][0]}, {i[1][2][1]}",
-            "exercise_4": f"{i[1][3][0][0]}, {i[1][3][1]}",
-            "exercise_5": f"{i[1][4][0][0]}, {i[1][4][1]}",
-            "exercise_6": f"{i[1][5][0][0]}, {i[1][5][1]}" if len(i[1]) > 5 else None
-        }
+        if len(i[1]) == 5:
+            doc = {
+                "id": i[0],
+                "exercise_1": f"{i[1][0][0][0]}, {i[1][0][1]}",
+                "exercise_2": f"{i[1][1][0][0]}, {i[1][1][1]}",
+                "exercise_3": f"{i[1][2][0][0]}, {i[1][2][1]}",
+                "exercise_4": f"{i[1][3][0][0]}, {i[1][3][1]}",
+                "exercise_5": f"{i[1][4][0][0]}, {i[1][4][1]}",
+                "exercise_cardio": None
+            }
+        else:
+            doc = {
+                "id": i[0],
+                "exercise_1": None,
+                "exercise_2": None,
+                "exercise_3": None,
+                "exercise_4": None,
+                "exercise_5": None,
+                "exercise_cardio": f"{i[1][0][0][0]}, {i[1][0][1]}"
+            }
         code_archive.write(f"db.treino.insertOne({doc});\n")
 
     for i in workout_users:
         doc = {
             "id": i[0],
             "id_usuario": i[1],
-            "id_treino": i[2][0],
-            "treino_seg": i[2][1],
-            "treino_ter": i[2][2],
-            "treino_qua": i[2][3],
-            "treino_qui": i[2][4],
-            "treino_sex": i[2][5] if len(i[2]) > 5 else None,
-            "treino_sab": i[2][6] if len(i[2]) > 6 else None
+            "id_treino": i[2],
+            "treino_seg": i[3][0],
+            "treino_ter": i[3][1],
+            "treino_qua": i[3][2],
+            "treino_qui": i[3][3],
+            "treino_sex": i[3][4],
+            "treino_sab": i[3][5] 
         }
 
         code_archive.write(f"db.treino_usuario.insertOne({doc});\n")
@@ -464,13 +477,13 @@ def main():
         createDietUser()
     for _ in range(0, num_diets):
         createDiet("hypertrophy")
-    for _ in range(0, int(num_workouts/3)):
+    for _ in range(0, int(num_workouts/4)):
         createWorkout("inf")
-    for _ in range(0, int(num_workouts/3)):
+    for _ in range(0, int(num_workouts/4)):
         createWorkout("sup")
-    for _ in range(0, int(num_workouts/3)):
+    for _ in range(0, int(num_workouts/4)):
         createWorkout("abs")
-    for _ in range(0, int(num_workouts/3)):
+    for _ in range(0, int(num_workouts/4)):
         createWorkout("cardio")
     for _ in range(0, num_workoutsUser):
         createWorkoutUser()
