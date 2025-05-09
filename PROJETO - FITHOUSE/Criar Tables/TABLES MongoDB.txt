@@ -25,12 +25,12 @@ db.createCollection("treino_usuario", {
         id: { bsonType: "int" },
         id_usuario: { bsonType: "int" },
         id_treino: { bsonType: "int" },
-        treino_seg: { bsonType: "string" },
-        treino_ter: { bsonType: "string" },
-        treino_qua: { bsonType: "string" },
-        treino_qui: { bsonType: "string" },
-        treino_sex: { bsonType: "string" },
-        treino_sab: { bsonType: "string" }
+        treino_seg: { bsonType: "int" },
+        treino_ter: { bsonType: "int" },
+        treino_qua: { bsonType: "int" },
+        treino_qui: { bsonType: "int" },
+        treino_sex: { bsonType: "int" },
+        treino_sab: { bsonType: "int" }
       }
     }
   }

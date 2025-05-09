@@ -370,14 +370,15 @@ def createExportCodeCassandra(diets, diet_users):
     code_archive.write("TRUNCATE dieta;\n")
 
     for i in diets:
+        print(", ".join(i[2]))
         code_archive.write("INSERT INTO dieta (id, tipo_dieta, cafe_manha, almoco, cafe_tarde, jantar, ceia) VALUES (" 
-                           + str(i[0]) + ", '" 
-                           + i[1] + "', '" 
-                           + ", ".join(i[2]) + "', '" 
-                           + ", ".join(i[3]) + "', '" 
-                           + ", ".join(i[4]) + "', '" 
-                           + ", ".join(i[5]) + "', '" 
-                           + ", ".join(i[6]) + "');\n")
+                       + str(i[0]) + ", '" 
+                       + i[1] 
+                       + "', [" + ", ".join("'" + item + "'" for item in i[2]) + "], "
+                       + "[" + ", ".join("'" + item + "'" for item in i[3]) + "], "
+                       + "[" + ", ".join("'" + item + "'" for item in i[4]) + "], "
+                       + "[" + ", ".join("'" + item + "'" for item in i[5]) + "], "
+                       + "[" + ", ".join("'" + item + "'" for item in i[6]) + "]);\n")
 
     for i in diet_users:
         code_archive.write("INSERT INTO dieta_usuario (id, id_dieta, id_usuario) VALUES (" 
@@ -407,16 +408,16 @@ def createExportCodeMongoDB(workouts, workout_users):
                 "exercise_3": f"{i[1][2][0][0]}, {i[1][2][1]}",
                 "exercise_4": f"{i[1][3][0][0]}, {i[1][3][1]}",
                 "exercise_5": f"{i[1][4][0][0]}, {i[1][4][1]}",
-                "exercise_cardio": None
+                "exercise_cardio": "null"
             }
         else:
             doc = {
                 "id": i[0],
-                "exercise_1": None,
-                "exercise_2": None,
-                "exercise_3": None,
-                "exercise_4": None,
-                "exercise_5": None,
+                "exercise_1": "null",
+                "exercise_2": "null",
+                "exercise_3": "null",
+                "exercise_4": "null",
+                "exercise_5": "null",
                 "exercise_cardio": f"{i[1][0][0][0]}, {i[1][0][1]}"
             }
         code_archive.write(f"db.treino.insertOne({doc});\n")

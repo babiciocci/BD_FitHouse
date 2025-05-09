@@ -1,0 +1,7 @@
+docker-compose -f cassandra.yml up -d
+docker-compose -f mysql.yml up -d
+docker-compose -f mongodb.yml up -d
+
+caso de errado e precisa tirar os containers
+
+docker rm -f $(docker ps -aq)

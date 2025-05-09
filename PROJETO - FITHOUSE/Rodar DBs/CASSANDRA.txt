@@ -1,0 +1,42 @@
+COMO CRIAR DB NO CASSANDRA
+
+PASSO 1:
+
+docker run --name nome_do_container -d -p 9042:9042 cassandra:latest (primeira porta vc pode alterar caso ja esteja sendo usada)
+
+PASSO 2: 
+
+docker ps -a (para ver container que estao parados)
+
+PASSO 3:
+
+docker exec -it nome_do_container cqlsh (dar o nome do container)
+
+PASSO 4:
+
+docker start cassandra
+
+PASSO 5: criar o DATABASE (no cassandra é KEYSPACE)
+
+CREATE KEYSPACE nome_do_database
+WITH replication = {
+   'class': 'SimpleStrategy',
+   'replication_factor': 1
+};
+
+PASSO 6: entrar no database
+
+USE nome_do_database;
+
+PASSO 7: criar as tables do TXT_CASSANDRA
+
+PASSO 8: pegar as querys do arquivo CodeCassandra.txt
+
+PASSO 9: ver se as tables forem criadas
+
+DESCRIBE TABLES;
+
+PASSO 10:
+
+
+SER FELIZ
