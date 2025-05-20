@@ -1,16 +1,25 @@
 from kafka import KafkaProducer
-import json
+from faker import Faker
 import time
+import json
+import random
+
+fake = Faker()
 
 producer = KafkaProducer(
-    bootstrap_servers='localhost:9092',
+    bootstrap_servers='kafka:9092',
+    api_version=(3,8,0),
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
-)
+    )
 
-while True:
-    mensagem = {"sistema": "S1", "dados": "Dado importante"}
-    # Envia tanto para S3 quanto para S2
-    producer.send('s1-s3', mensagem)
-    producer.send('s1-s2', mensagem)
-    print("S1 enviou:", mensagem)
-    time.sleep(5)
+if __name__ == '__main__':
+    topic = 's1-s2'
+
+    while True:
+        mensagem = {
+            "dieta": "frango",
+            "table": "valor",
+            "table": {"id": 123}
+        }
+        print(mensagem)
+        producer.send(topic, value=mensagem)

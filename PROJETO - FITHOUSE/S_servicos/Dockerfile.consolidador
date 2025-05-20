@@ -2,3 +2,4 @@ FROM python:3.9
 WORKDIR /app
 COPY s3_consolidador.py /app
 RUN pip install kafka-python
+CMD ["python", "s3_consolidador.py"]

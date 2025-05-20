@@ -1,4 +1,5 @@
 FROM python:3.9
 WORKDIR /app
 COPY s2_consumidor.py /app
-RUN pip install kafka-python
+RUN pip install kafka-python mysql.connector pymongo cassandra-driver
+CMD ["python", "s2_consumidor.py"]
