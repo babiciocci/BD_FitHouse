@@ -86,25 +86,25 @@ services:
 
   produtor:
     build:
+    
       context: ./S_servicos
       dockerfile: Dockerfile.produtor
     container_name: s1_produtor
+    restart: always
     depends_on:
       - kafka
     networks:
       - db_network
 
   consumidor:
-    restart: always
+    
     build:
       context: ./S_servicos
       dockerfile: Dockerfile.consumidor
     container_name: s2_consumidor
+    restart: always
     depends_on:
       - kafka
-      - cassandra
-      - mysql
-      - mongodb
     networks:
       - db_network
 
@@ -113,6 +113,7 @@ services:
       context: ./S_servicos
       dockerfile: Dockerfile.consolidador
     container_name: s3_consolidador
+    restart: always
     depends_on:
       - kafka
     networks:
