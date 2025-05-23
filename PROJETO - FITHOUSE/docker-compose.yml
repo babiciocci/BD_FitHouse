@@ -27,48 +27,48 @@ services:
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
 
 
-  cassandra:
-    image: cassandra:latest
-    container_name: cassandra_db
-    restart: always
-    ports:
-      - "9042:9042"
-    environment:
-      - CASSANDRA_CLUSTER_NAME=MyCassandraCluster
-      - CASSANDRA_START_RPC=true
-    volumes:
-      - cassandra_data:/var/lib/cassandra
-    networks:
-      - db_network
+  # cassandra:
+  #   image: cassandra:latest
+  #   container_name: cassandra_db
+  #   restart: always
+  #   ports:
+  #     - "9042:9042"
+  #   environment:
+  #     - CASSANDRA_CLUSTER_NAME=MyCassandraCluster
+  #     - CASSANDRA_START_RPC=true
+  #   volumes:
+  #     - cassandra_data:/var/lib/cassandra
+  #   networks:
+  #     - db_network
 
-  mysql:
-    image: mysql:8.0
-    container_name: mysql_db
-    restart: always
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: testdb
-      MYSQL_USER: user
-      MYSQL_PASSWORD: userpass
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - db_network
+  # mysql:
+  #   image: mysql:8.0
+  #   container_name: mysql_db
+  #   restart: always
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: rootpass
+  #     MYSQL_DATABASE: testdb
+  #     MYSQL_USER: user
+  #     MYSQL_PASSWORD: userpass
+  #   volumes:
+  #     - mysql_data:/var/lib/mysql
+  #   networks:
+  #     - db_network
 
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb_db
-    ports:
-      - "27017:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootpass
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - db_network
+  # mongodb:
+  #   image: mongo:latest
+  #   container_name: mongodb_db
+  #   ports:
+  #     - "27017:27017"
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: rootpass
+  #   volumes:
+  #     - mongo_data:/data/db
+  #   networks:
+  #     - db_network
 
   produtor:
     build:
@@ -93,12 +93,7 @@ services:
     restart: always
     depends_on:
       - kafka
-    networks:
-      - db_network
 
-networks:
-  db_network:
-    driver: bridge
 
 volumes:
   cassandra_data:

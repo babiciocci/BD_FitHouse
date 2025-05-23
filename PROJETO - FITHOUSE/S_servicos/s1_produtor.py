@@ -1,6 +1,7 @@
 from kafka import KafkaProducer
 import time
 import json
+import socket
 
 # Cria o produtor Kafka
 producer = KafkaProducer(
@@ -9,7 +10,7 @@ producer = KafkaProducer(
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-import socket
+
 
 def aguardarkafka( delay=3, max_tentativas=30):
     tentativas = 0
@@ -21,7 +22,7 @@ def aguardarkafka( delay=3, max_tentativas=30):
         except (socket.timeout, ConnectionRefusedError):
             print(f"KAFKA não disponível. Tentando novamente em {delay} segundos...")
             time.sleep(delay)
-            tentativas += 1`
+            tentativas += 1
 
 if(aguardarkafka):
     # Tópico Kafka
@@ -35,7 +36,6 @@ if(aguardarkafka):
             }
             print("Enviando:", mensagem)
             producer.send(topic, value=mensagem)
-            time.sleep(3)  # Evita flood no Kafka
 
 print("nao esta rodando ainda")
 
