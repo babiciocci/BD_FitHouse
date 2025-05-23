@@ -14,9 +14,6 @@ consumer = KafkaConsumer(
     value_deserializer=lambda m: json.loads(m.decode('utf-8'))
 )
 
-for i in consumer:
-    print("!!!!!!: ", i.value)
-
 # Kafka producer para enviar respostas
 producer = KafkaProducer(
     bootstrap_servers='localhost:9092',
