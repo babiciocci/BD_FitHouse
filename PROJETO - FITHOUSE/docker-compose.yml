@@ -1,31 +1,18 @@
-version: '3.8'
-
 services:
-  zookeeper:
-    image: bitnami/zookeeper:latest
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    environment:
-      ALLOW_ANONYMOUS_LOGIN: "yes"
-    networks:
-      - db_network
 
   kafka:
-    image: apache/kafka-native
-    container_name: kafka
+    image: bitnami/kafka:latest
+    restart: on-failure
     ports:
       - "9092:9092"
     environment:
-      KAFKA_LISTENERS: CONTROLLER://0.0.0.0:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: HOST://kafka:9092,DOCKER://kafka:9093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9091
-      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: true
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
 
   kafka_ui:
     image: provectuslabs/kafka-ui
@@ -38,7 +25,6 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_NAME=DIETA
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
-      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
 
 
   cassandra:
@@ -86,15 +72,10 @@ services:
 
   produtor:
     build:
-    
       context: ./S_servicos
       dockerfile: Dockerfile.produtor
     container_name: s1_produtor
-    restart: always
-    depends_on:
-      - kafka
-    networks:
-      - db_network
+
 
   consumidor:
     
@@ -103,10 +84,6 @@ services:
       dockerfile: Dockerfile.consumidor
     container_name: s2_consumidor
     restart: always
-    depends_on:
-      - kafka
-    networks:
-      - db_network
 
   consolidador:
     build:
