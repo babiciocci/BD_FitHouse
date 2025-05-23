@@ -15,11 +15,11 @@ producer = KafkaProducer(
 if __name__ == '__main__':
     topic = 's1-s2'
 
-    while True:
+    for i in range(0,11):
         mensagem = {
             "dieta": "frango",
-            "table": "valor",
-            "table": {"id": 123}
+            "treino": "biceps",
+            "usuario": {"id": 123}
         }
         print(mensagem)
         producer.send(topic, value=mensagem)

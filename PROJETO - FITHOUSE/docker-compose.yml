@@ -38,7 +38,7 @@ services:
       - 8080:8080
     restart: always
     environment:
-      - KAFKA_CLUSTERS_0_NAME=COD
+      - KAFKA_CLUSTERS_0_NAME=DIETA
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
       - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2101
 
@@ -95,6 +95,7 @@ services:
       - kafka
 
   consumidor:
+    restart: always
     build:
       context: ./S_servicos
       dockerfile: Dockerfile.consumidor

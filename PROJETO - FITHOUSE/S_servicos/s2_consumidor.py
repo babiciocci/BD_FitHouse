@@ -8,12 +8,21 @@ from pymongo import MongoClient
 consumer = KafkaConsumer(
     's1-s2',
     bootstrap_servers='localhost:9092',
+    api_version=(3,8,0),
+    auto_offset_reset='earliest',
+    enable_auto_commit=True,
     value_deserializer=lambda m: json.loads(m.decode('utf-8'))
 )
+
+for i in consumer:
+    print("!!!!!!: ", i.value)
 
 # Kafka producer para enviar respostas
 producer = KafkaProducer(
     bootstrap_servers='localhost:9092',
+    api_version=(3,8,0),
+    auto_offset_reset='earliest',
+    enable_auto_commit=True,
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
