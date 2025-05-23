@@ -1,5 +1,5 @@
 FROM python:3.9
 WORKDIR /app
 COPY s1_produtor.py /app
-RUN pip install kafka-python faker
+RUN pip install kafka-python
 CMD ["python", "s1_produtor.py"]

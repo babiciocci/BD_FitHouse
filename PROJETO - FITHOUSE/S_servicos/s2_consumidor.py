@@ -4,11 +4,13 @@ import mysql.connector
 from cassandra.cluster import Cluster
 from pymongo import MongoClient
 
+import time
+
 # Kafka consumer para escutar requisições
 consumer = KafkaConsumer(
     's1-s2',
-    bootstrap_servers='localhost:9092',
-    api_version=(3,8,0),
+    bootstrap_servers='kafka:9093',
+    api_version=(3, 8, 0),
     auto_offset_reset='earliest',
     enable_auto_commit=True,
     value_deserializer=lambda m: json.loads(m.decode('utf-8'))
@@ -16,152 +18,90 @@ consumer = KafkaConsumer(
 
 # Kafka producer para enviar respostas
 producer = KafkaProducer(
-    bootstrap_servers='localhost:9092',
-    api_version=(3,8,0),
-    auto_offset_reset='earliest',
-    enable_auto_commit=True,
+    bootstrap_servers='kafka:9093',
+    api_version=(3, 8, 0),
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-# Conexões com os bancos
-mysql_conn = mysql.connector.connect(
-    host='localhost',
-    user='user',
-    password='userpass',
-    database='fithouse'
-)
-mysql_cursor = mysql_conn.cursor(dictionary=True)
+# Conexão com MySQL
+try:
+    mysql_conn = mysql.connector.connect(
+        host='mysql',  # ou 'localhost' se for local
+        user='user',
+        password='userpass',
+        database='fithouse'
+    )
+    mysql_cursor = mysql_conn.cursor(dictionary=True)
+except Exception as e:
+    print("Erro ao conectar MySQL:", e)
+    mysql_conn = None
 
-cassandra_cluster = Cluster(['localhost'])
-cassandra_session = cassandra_cluster.connect('fithouse')
+# Conexão com Cassandra
+try:
+    cassandra_cluster = Cluster(['cassandra'])  # ou 'localhost'
+    cassandra_session = cassandra_cluster.connect('fithouse')
+except Exception as e:
+    print("Erro ao conectar Cassandra:", e)
+    cassandra_session = None
 
-cassandra_cursor = cassandra.cursor(dictionary=True)
-
-mongo_client = MongoClient('localhost', 27017)
-mongo_db = mongo_client['fithouse']
-mongo_collection = mongo_db['sua_colecao']
-
-mongodb_cursor = mongodb.cursor(dictionary=True)
+# Conexão com MongoDB
+try:
+    mongo_client = MongoClient('mongodb://mongo:27017/')  # ou 'localhost'
+    mongo_db = mongo_client['fithouse']
+    mongo_collection = mongo_db['treino']
+except Exception as e:
+    print("Erro ao conectar MongoDB:", e)
+    mongo_client = None
 
 if __name__ == '__main__':
     topic = 's2-s3'
+    print("S2 aguardando mensagens...")
 
-print("S2 aguardando mensagens...")
+    for msg in consumer:
+        dados = msg.value
+        print("Mensagem recebida:", dados)
 
-for msg in consumer:
-    dados = msg.value
-    parametros = dados.get('parametros', {})
-    banco = parametros.get('banco')
-    id_valor = parametros.get('id')
+        # Simulando parâmetros que poderiam ser enviados
+        usuario = dados.get('usuario', {})
+        id_valor = usuario.get('id', None)
 
-    resultado = None
+        resultado = None
 
-    # CRIANDO O DATABASE MYSQL
-    mysql_cursor.execute("""
-    CREATE DATABASE fithouse;
-    USE fithouse;
-    CREATE TABLE usuario (
-        id INT PRIMARY KEY,
-        nome VARCHAR(255) NOT NULL,
-        data_registro DATE NOT NULL,
-        foco VARCHAR(255) NOT NULL
-    );
-    """)
+        try:
+            # Exemplo: consulta MySQL
+            if mysql_conn and id_valor:
+                mysql_cursor.execute("SELECT * FROM usuario WHERE id = %s", (id_valor,))
+                resultado = mysql_cursor.fetchone()
+                if resultado:
+                    resultado['banco'] = 'MySQL'
+            
+            # Exemplo: consulta Cassandra
+            if not resultado and cassandra_session and id_valor:
+                query = f"SELECT * FROM dieta WHERE id = {id_valor};"
+                cass_result = cassandra_session.execute(query).one()
+                if cass_result:
+                    resultado = dict(cass_result)
+                    resultado['banco'] = 'Cassandra'
+            
+            # Exemplo: consulta MongoDB
+            if not resultado and mongo_client and id_valor:
+                mongo_result = mongo_collection.find_one({"id": id_valor})
+                if mongo_result:
+                    mongo_result['_id'] = str(mongo_result['_id'])  # serializa ObjectId
+                    resultado = mongo_result
+                    resultado['banco'] = 'MongoDB'
+            
+            if not resultado:
+                resultado = {"info": "Nenhum dado encontrado"}
 
-    # CRIANDO O DATABASE CASSANDRA
-    cassandra_cursor.execute("""
-    CREATE KEYSPACE fithouse
-    WITH replication = {
-    'class': 'SimpleStrategy',
-    'replication_factor': 1
-    };
-    
-    CREATE TABLE dieta (
-        id int PRIMARY KEY,
-        tipo_dieta text,
-        cafe_manha list<text>,
-        almoco list<text>,
-        cafe_tarde list<text>,
-        jantar list<text>,
-        ceia list<text>
-    );
+        except Exception as e:
+            resultado = {"erro": str(e)}
 
-    CREATE TABLE dieta_usuario (
-        id int PRIMARY KEY,
-        id_dieta int,
-        id_usuario int
-    );
-    """)
-
-    # CRIANDO O DATABASE MONGO
-    mongodb_cursor.execute("""
-    use fitstore;
-    db.createCollection("treino", {
-    validator: {
-        $jsonSchema: {
-        bsonType: "object",
-        required: ["id"],
-        properties: {
-            id: { bsonType: "int" },
-            exercise_1: { bsonType: "string" },
-            exercise_2: { bsonType: "string" },
-            exercise_3: { bsonType: "string" },
-            exercise_4: { bsonType: "string" },
-            exercise_5: { bsonType: "string" },
-            exercise_6: { bsonType: "string" }
+        resposta = {
+            "sistema": "S2",
+            "resposta": resultado,
+            "original": dados
         }
-        }
-    }
-    });
 
-    db.createCollection("treino_usuario", {
-    validator: {
-        $jsonSchema: {
-        bsonType: "object",
-        required: ["id", "id_usuario", "id_treino"],
-        properties: {
-            id: { bsonType: "int" },
-            id_usuario: { bsonType: "int" },
-            id_treino: { bsonType: "int" },
-            treino_seg: { bsonType: "int" },
-            treino_ter: { bsonType: "int" },
-            treino_qua: { bsonType: "int" },
-            treino_qui: { bsonType: "int" },
-            treino_sex: { bsonType: "int" },
-            treino_sab: { bsonType: "int" }
-        }
-        }
-    }
-    });
-    """)
-
-    # PRECISA COLOCAR OS DADOS NOS BANCOS
-    
-    try:
-        if banco == 'mysql':
-            mysql_cursor.execute("SELECT * FROM sua_tabela WHERE id = %s", (id_valor,))
-            resultado = mysql_cursor.fetchone()
-
-        elif banco == 'cassandra':
-            query = f"SELECT * FROM sua_tabela WHERE id = {id_valor}"
-            resultado = cassandra_session.execute(query).one()
-
-        elif banco == 'mongodb':
-            resultado = mongo_collection.find_one({"id": id_valor})
-            if resultado and '_id' in resultado:
-                resultado['_id'] = str(resultado['_id'])  # serializar ObjectId
-
-        else:
-            resultado = {"erro": "Banco não reconhecido"}
-
-    except Exception as e:
-        resultado = {"erro": str(e)}
-
-    resposta = {
-        "sistema": "S2",
-        "resposta": resultado,
-        "original": dados
-    }
-
-    producer.send('s2-s3', resposta)
-    print("S2 enviou resposta ao S3:", resposta)
+        producer.send(topic, resposta)
+        print("S2 enviou resposta ao S3:", resposta)

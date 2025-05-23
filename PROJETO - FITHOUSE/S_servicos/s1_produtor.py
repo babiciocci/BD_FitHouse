@@ -1,13 +1,10 @@
 from kafka import KafkaProducer
-from faker import Faker
 import time
 import json
 import random
 
-fake = Faker()
-
 producer = KafkaProducer(
-    bootstrap_servers='kafka:9092',
+    bootstrap_servers='kafka:9093',
     api_version=(3,8,0),
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
     )
@@ -23,3 +20,4 @@ if __name__ == '__main__':
         }
         print(mensagem)
         producer.send(topic, value=mensagem)
+        producer.flush()

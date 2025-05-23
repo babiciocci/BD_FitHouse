@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   zookeeper:
     image: bitnami/zookeeper:latest
@@ -15,19 +17,15 @@ services:
     ports:
       - "9092:9092"
     environment:
-      # Configure listeners for both docker and host communication
-      KAFKA_LISTENERS: CONTROLLER://localhost:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:9093
+      KAFKA_LISTENERS: CONTROLLER://0.0.0.0:9091,HOST://0.0.0.0:9092,DOCKER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: HOST://kafka:9092,DOCKER://kafka:9093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,DOCKER:PLAINTEXT,HOST:PLAINTEXT
-
-      # Settings required for KRaft mode
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9091
-
-      # Listener to use for broker-to-broker communication
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9091
       KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: true
 
   kafka_ui:
     image: provectuslabs/kafka-ui
@@ -40,7 +38,7 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_NAME=DIETA
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
-      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2101
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
 
 
   cassandra:
@@ -93,6 +91,8 @@ services:
     container_name: s1_produtor
     depends_on:
       - kafka
+    networks:
+      - db_network
 
   consumidor:
     restart: always
@@ -105,7 +105,8 @@ services:
       - cassandra
       - mysql
       - mongodb
-
+    networks:
+      - db_network
 
   consolidador:
     build:
@@ -114,7 +115,8 @@ services:
     container_name: s3_consolidador
     depends_on:
       - kafka
-
+    networks:
+      - db_network
 
 networks:
   db_network:
