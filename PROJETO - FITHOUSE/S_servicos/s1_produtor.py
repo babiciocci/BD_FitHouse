@@ -26,16 +26,18 @@ def aguardarkafka( delay=3, max_tentativas=30):
 
 if(aguardarkafka):
     # Tópico Kafka
-    topic = 's1-s2'
     if __name__ == '__main__':
-        for i in range(0,21):
+        topic = 's1-s2'
+        for i in range(0,200):
             mensagem = {
                 "dieta": "frango",
                 "treino": "biceps",
                 "usuario": {"id": 123}
             }
-            print("Enviando:", mensagem)
             producer.send(topic, value=mensagem)
+            print("Enviando:", mensagem)
+            time.sleep(1)
+            
 
-print("nao esta rodando ainda")
+print("Chegaram todas as mensagens!")
 

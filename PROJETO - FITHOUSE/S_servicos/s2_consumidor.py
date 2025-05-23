@@ -32,14 +32,16 @@ try:
         database='fithouse'
     )
     mysql_cursor = mysql_conn.cursor(dictionary=True)
+    print("Conectado no MySql!")
 except Exception as e:
     print("Erro ao conectar MySQL:", e)
     mysql_conn = None
 
 # Conexão com Cassandra
 try:
-    cassandra_cluster = Cluster(['cassandra'])  # ou 'localhost'
+    cassandra_cluster = Cluster(['MyCassandraCluster'])  # ou 'localhost'
     cassandra_session = cassandra_cluster.connect('fithouse')
+    print("Conectado no CassandraB!")
 except Exception as e:
     print("Erro ao conectar Cassandra:", e)
     cassandra_session = None
@@ -49,6 +51,7 @@ try:
     mongo_client = MongoClient('mongodb://mongo:27017/')  # ou 'localhost'
     mongo_db = mongo_client['fithouse']
     mongo_collection = mongo_db['treino']
+    print("Conectado no MongoDB!")
 except Exception as e:
     print("Erro ao conectar MongoDB:", e)
     mongo_client = None
@@ -61,47 +64,46 @@ if __name__ == '__main__':
         dados = msg.value
         print("Mensagem recebida:", dados)
 
-        # # Simulando parâmetros que poderiam ser enviados
-        # usuario = dados.get('usuario', {})
-        # id_valor = usuario.get('id', None)
+        # Simulando parâmetros que poderiam ser enviados
+        usuario = dados.get('usuario', {})
+        id_valor = usuario.get('id', None)
 
-        # resultado = None
+        resultado = None
 
-        # try:
-        #     # Exemplo: consulta MySQL
-        #     if mysql_conn and id_valor:
-        #         mysql_cursor.execute("SELECT * FROM usuario WHERE id = %s", (id_valor,))
-        #         resultado = mysql_cursor.fetchone()
-        #         if resultado:
-        #             resultado['banco'] = 'MySQL'
+        try:
+            # Exemplo: consulta MySQL
+            if mysql_conn and id_valor:
+                mysql_cursor.execute("SELECT * FROM usuario WHERE id = %s", (id_valor,))
+                resultado = mysql_cursor.fetchone()
+                if resultado:
+                    resultado['banco'] = 'MySQL'
             
-        #     # Exemplo: consulta Cassandra
-        #     if not resultado and cassandra_session and id_valor:
-        #         query = f"SELECT * FROM dieta WHERE id = {id_valor};"
-        #         cass_result = cassandra_session.execute(query).one()
-        #         if cass_result:
-        #             resultado = dict(cass_result)
-        #             resultado['banco'] = 'Cassandra'
+            # Exemplo: consulta Cassandra
+            if not resultado and cassandra_session and id_valor:
+                query = f"SELECT * FROM dieta WHERE id = {id_valor};"
+                cass_result = cassandra_session.execute(query).one()
+                if cass_result:
+                    resultado = dict(cass_result)
+                    resultado['banco'] = 'Cassandra'
             
-        #     # Exemplo: consulta MongoDB
-        #     if not resultado and mongo_client and id_valor:
-        #         mongo_result = mongo_collection.find_one({"id": id_valor})
-        #         if mongo_result:
-        #             mongo_result['_id'] = str(mongo_result['_id'])  # serializa ObjectId
-        #             resultado = mongo_result
-        #             resultado['banco'] = 'MongoDB'
+            # Exemplo: consulta MongoDB
+            if not resultado and mongo_client and id_valor:
+                mongo_result = mongo_collection.find_one({"id": id_valor})
+                if mongo_result:
+                    resultado = mongo_result
+                    resultado['banco'] = 'MongoDB'
             
-        #     if not resultado:
-        #         resultado = {"info": "Nenhum dado encontrado"}
+            if not resultado:
+                resultado = {"info": "Nenhum dado encontrado"}
 
-        # except Exception as e:
-        #     resultado = {"erro": str(e)}
+        except Exception as e:
+            resultado = {"erro": str(e)}
 
-        # resposta = {
-        #     "sistema": "S2",
-        #     "resposta": resultado,
-        #     "original": dados
-        # }
+        resposta = {
+            "sistema": "S2",
+            "resposta": resultado,
+            "original": dados
+        }
 
-        # producer.send(topic, resposta)
-        # print("S2 enviou resposta ao S3:", resposta)
+        producer.send(topic, resposta)
+        print("S2 enviou resposta ao S3:", resposta)
