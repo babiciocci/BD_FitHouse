@@ -4,18 +4,43 @@ import mysql.connector
 from cassandra.cluster import Cluster
 from pymongo import MongoClient
 
-import time
+# =========================
+# Configuração MySQL
+# =========================
+mysql_conn = mysql.connector.connect(
+    host="mysql_db",
+    user="user",
+    password="userpass",
+    database="fithouse_db",
+    port=3306
+)
+mysql_cursor = mysql_conn.cursor(dictionary=True)
+
+# # =========================
+# # Configuração Cassandra
+# # =========================
+# cluster = Cluster(['cassandra_db'])
+# session = cluster.connect()
+# session.set_keyspace('db_cassandra')  # Você deve criar esse keyspace antes
+
+# =========================
+# Configuração MongoDB
+# =========================
+mongo_client = MongoClient('mongodb://root:rootpass@mongodb_db:27017/')
+mongo_db = mongo_client['db_mongo']
+
+# =========================
+# Configuração Kafka
+# =========================
 
 consumer = KafkaConsumer(
-    's1-s2',
+    's1-kafka-s2',
     bootstrap_servers='kafka:9092',
     api_version=(3, 8, 0),
     auto_offset_reset='earliest',
     enable_auto_commit=True,
-    group_id='consumidor',
     value_deserializer=lambda m: json.loads(m.decode('utf-8'))
 )
-print(f"Conectado ao tópico: {consumer.subscription()}")
 
 producer = KafkaProducer(
     bootstrap_servers='kafka:9092',
@@ -23,87 +48,138 @@ producer = KafkaProducer(
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
-# Conexão com MySQL
-try:
-    mysql_conn = mysql.connector.connect(
-        host='mysql',  # ou 'localhost' se for local
-        user='user',
-        password='userpass',
-        database='fithouse'
-    )
-    mysql_cursor = mysql_conn.cursor(dictionary=True)
-    print("Conectado no MySql!")
-except Exception as e:
-    print("Erro ao conectar MySQL:", e)
-    mysql_conn = None
+print("S2 aguardando mensagens...")
 
-# Conexão com Cassandra
-try:
-    cassandra_cluster = Cluster(['MyCassandraCluster'])  # ou 'localhost'
-    cassandra_session = cassandra_cluster.connect('fithouse')
-    print("Conectado no CassandraB!")
-except Exception as e:
-    print("Erro ao conectar Cassandra:", e)
-    cassandra_session = None
+for msg in consumer:
+    mensagem = msg.value
+    print(f"\nMensagem recebida: {json.dumps(mensagem, indent=2, ensure_ascii=False)}")
 
-# Conexão com MongoDB
-try:
-    mongo_client = MongoClient('mongodb://mongo:27017/')  # ou 'localhost'
-    mongo_db = mongo_client['fithouse']
-    mongo_collection = mongo_db['treino']
-    print("Conectado no MongoDB!")
-except Exception as e:
-    print("Erro ao conectar MongoDB:", e)
-    mongo_client = None
+    banco = mensagem.get('banco')
+    operacao = mensagem.get('operacao')
+    tabela = mensagem.get('tabela')
+    dados = mensagem.get('dados', {})
+    filtro = mensagem.get('filtro', {})
 
-if __name__ == '__main__':
-    topic = 's2-s3'
-    print("S2 aguardando mensagens...")
+    resposta = {}
 
-    for msg in consumer:
-        dados = msg.value
-        print("Mensagem recebida:", dados)
+    try:
+        if banco == 'mysql':
+            # ====================
+            # Operações no MySQL
+            # ====================
+            if operacao == 'inserir':
+                colunas = ', '.join(dados.keys())
+                valores = ', '.join(['%s'] * len(dados))
+                sql = f"INSERT INTO {tabela} ({colunas}) VALUES ({valores})"
+                mysql_cursor.execute(sql, tuple(dados.values()))
+                mysql_conn.commit()
 
-        # Simulando parâmetros que poderiam ser enviados
-        usuario = dados.get('usuario', {})
-        id_valor = usuario.get('id', None)
+                resposta = {
+                    "status": "sucesso",
+                    "mensagem": "Registro inserido no MySQL",
+                    "dados": dados
+                }
 
-        resultado = None
+            elif operacao == 'buscar':
+                where = ' AND '.join([f"{k}=%s" for k in filtro.keys()]) if filtro else '1'
+                sql = f"SELECT * FROM {tabela} WHERE {where}"
+                mysql_cursor.execute(sql, tuple(filtro.values()))
+                resultado = mysql_cursor.fetchall()
 
-        try:
-            # Exemplo: consulta MySQL
-            if mysql_conn and id_valor:
-                mysql_cursor.execute("SELECT * FROM usuario WHERE id = %s", (id_valor,))
-                resultado = mysql_cursor.fetchone()
-                if resultado:
-                    resultado['banco'] = 'MySQL'
-            
-            # Exemplo: consulta Cassandra
-            if not resultado and cassandra_session and id_valor:
-                query = f"SELECT * FROM dieta WHERE id = {id_valor};"
-                cass_result = cassandra_session.execute(query).one()
-                if cass_result:
-                    resultado = dict(cass_result)
-                    resultado['banco'] = 'Cassandra'
-            
-            # Exemplo: consulta MongoDB
-            if not resultado and mongo_client and id_valor:
-                mongo_result = mongo_collection.find_one({"id": id_valor})
-                if mongo_result:
-                    resultado = mongo_result
-                    resultado['banco'] = 'MongoDB'
-            
-            if not resultado:
-                resultado = {"info": "Nenhum dado encontrado"}
+                resposta = {
+                    "status": "sucesso",
+                    "mensagem": f"Encontrados {len(resultado)} registros no MySQL",
+                    "resultado": resultado
+                }
 
-        except Exception as e:
-            resultado = {"erro": str(e)}
+            else:
+                resposta = {
+                    "status": "erro",
+                    "mensagem": f"Operação '{operacao}' não suportada para MySQL"
+                }
 
+        elif banco == 'cassandra':
+            # ===========================
+            # Operações no Cassandra
+            # ===========================
+            if operacao == 'inserir':
+                colunas = ', '.join(dados.keys())
+                valores = ', '.join(['%s'] * len(dados))
+                query = f"INSERT INTO {tabela} ({colunas}) VALUES ({valores})"
+                session.execute(query, tuple(dados.values()))
+
+                resposta = {
+                    "status": "sucesso",
+                    "mensagem": "Registro inserido no Cassandra",
+                    "dados": dados
+                }
+
+            elif operacao == 'buscar':
+                if filtro:
+                    where = ' AND '.join([f"{k}=%s" for k in filtro.keys()])
+                    query = f"SELECT * FROM {tabela} WHERE {where} ALLOW FILTERING"
+                    result = session.execute(query, tuple(filtro.values()))
+                else:
+                    query = f"SELECT * FROM {tabela}"
+                    result = session.execute(query)
+
+                resultado = [dict(row._asdict()) for row in result]
+
+                resposta = {
+                    "status": "sucesso",
+                    "mensagem": f"Encontrados {len(resultado)} registros no Cassandra",
+                    "resultado": resultado
+                }
+
+            else:
+                resposta = {
+                    "status": "erro",
+                    "mensagem": f"Operação '{operacao}' não suportada para Cassandra"
+                }
+
+        elif banco == 'mongodb':
+            # ===========================
+            # Operações no MongoDB
+            # ===========================
+            collection = mongo_db[tabela]
+
+            if operacao == 'inserir':
+                collection.insert_one(dados)
+
+                resposta = {
+                    "status": "sucesso",
+                    "mensagem": "Registro inserido no MongoDB",
+                    "dados": dados
+                }
+
+            elif operacao == 'buscar':
+                resultados = list(collection.find(filtro, {'_id': False}))
+
+                resposta = {
+                    "status": "sucesso",
+                    "mensagem": f"Encontrados {len(resultados)} registros no MongoDB",
+                    "resultado": resultados
+                }
+
+            else:
+                resposta = {
+                    "status": "erro",
+                    "mensagem": f"Operação '{operacao}' não suportada para MongoDB"
+                }
+
+        else:
+            resposta = {
+                "status": "erro",
+                "mensagem": f"Banco '{banco}' não reconhecido"
+            }
+
+    except Exception as e:
         resposta = {
-            "sistema": "S2",
-            "resposta": resultado,
-            "original": dados
+            "status": "erro",
+            "mensagem": str(e)
         }
 
-        producer.send(topic, resposta)
-        print("S2 enviou resposta ao S3:", resposta)
+    producer.send('s2-kafka', value=resposta)
+    producer.flush()
+
+    print("Resposta enviada:", json.dumps(resposta, indent=2, ensure_ascii=False))
