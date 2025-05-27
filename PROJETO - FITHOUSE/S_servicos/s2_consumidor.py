@@ -56,10 +56,10 @@ for msg in consumer:
 
     banco = mensagem.get('banco')
     operacao = mensagem.get('operacao')
-    tabela = mensagem.get('tabela')
+    tabela = mensagem.get('table')
     dados = mensagem.get('dados', {})
     filtro = mensagem.get('filtro', {})
-    print("tabela: ", mensagem.get('tabela')) ############# PEGANDO TABELA COMO NULO
+    print("tabela: ", mensagem.get('table')) ############# PEGANDO TABELA COMO NULO
 
     resposta = {}
 
