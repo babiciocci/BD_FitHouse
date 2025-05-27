@@ -59,6 +59,7 @@ for msg in consumer:
     tabela = mensagem.get('tabela')
     dados = mensagem.get('dados', {})
     filtro = mensagem.get('filtro', {})
+    print("tabela: ", mensagem.get('tabela')) ############# PEGANDO TABELA COMO NULO
 
     resposta = {}
 

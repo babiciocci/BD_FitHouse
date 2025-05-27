@@ -31,12 +31,12 @@ if(aguardarkafka):
         for i in range(0,50):
             mensagem = {
             "banco": "mysql",
-            "operacao": "inserir",
-            "tabela": "clientes",
+            "operacao": "buscar",
+            "table": "usuario",
             "dados": {
                 "id": 1,
-                "nome": "João",
-                "email": "joao@email.com"
+                "nome": "Bruno Basso",
+                "foco": "hypertrophy"
             },
             "filtro": {
                 "id": 1
