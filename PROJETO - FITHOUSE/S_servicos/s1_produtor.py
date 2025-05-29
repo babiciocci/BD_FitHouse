@@ -15,6 +15,7 @@ producer = KafkaProducer(
 
 
 
+
 def aguardarkafka( delay=3, max_tentativas=30):
     tentativas = 0
     while tentativas < max_tentativas:
