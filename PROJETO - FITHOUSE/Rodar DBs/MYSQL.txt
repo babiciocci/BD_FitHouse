@@ -9,7 +9,7 @@ docker ps -a
 
 EXECUTAR MYSQL
 
-docker exec -it mysql bash
+docker exec -it mysql_db bash
 
 EXECUTAR ESSE PARA ENTRAR NO MYSQL
 
@@ -17,6 +17,10 @@ mysql -u root -p
 
 COLOCAR SENHA
 
-root
+rootpass
 
-ja esta dentro
+ENTRAR NO fithouse_db
+
+USE fithouse_db;
+
+RODAR TABLES E VALORES

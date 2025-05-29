@@ -4,6 +4,7 @@ import mysql.connector
 from cassandra.cluster import Cluster
 from pymongo import MongoClient
 
+
 # =========================
 # Configuração MySQL
 # =========================
@@ -27,7 +28,7 @@ mysql_cursor = mysql_conn.cursor(dictionary=True)
 # Configuração MongoDB
 # =========================
 mongo_client = MongoClient('mongodb://root:rootpass@mongodb_db:27017/')
-mongo_db = mongo_client['db_mongo']
+mongo_db = mongo_client['fithouse']  
 
 # =========================
 # Configuração Kafka
@@ -48,7 +49,10 @@ producer = KafkaProducer(
     value_serializer=lambda v: json.dumps(v).encode('utf-8')
 )
 
+
+
 print("S2 aguardando mensagens...")
+
 
 for msg in consumer:
     mensagem = msg.value
@@ -58,13 +62,15 @@ for msg in consumer:
     operacao = mensagem.get('operacao')
     tabela = mensagem.get('table')
     dados = mensagem.get('dados', {})
-    filtro = mensagem.get('filtro', {})
+
     print("tabela: ", mensagem.get('table')) ############# PEGANDO TABELA COMO NULO
 
     resposta = {}
 
     try:
         if banco == 'mysql':
+
+
             # ====================
             # Operações no MySQL
             # ====================
@@ -82,9 +88,12 @@ for msg in consumer:
                 }
 
             elif operacao == 'buscar':
-                where = ' AND '.join([f"{k}=%s" for k in filtro.keys()]) if filtro else '1'
+                if dados:
+                    where = ' AND '.join([f"{k}=%s" for k in dados.keys()])
+                else:
+                    where = '1'  # condição sempre verdadeira, para evitar erro no WHERE
                 sql = f"SELECT * FROM {tabela} WHERE {where}"
-                mysql_cursor.execute(sql, tuple(filtro.values()))
+                mysql_cursor.execute(sql, tuple(dados.values()))
                 resultado = mysql_cursor.fetchall()
 
                 resposta = {
@@ -100,6 +109,10 @@ for msg in consumer:
                 }
 
         elif banco == 'cassandra':
+
+
+
+
             # ===========================
             # Operações no Cassandra
             # ===========================
@@ -116,10 +129,10 @@ for msg in consumer:
                 }
 
             elif operacao == 'buscar':
-                if filtro:
-                    where = ' AND '.join([f"{k}=%s" for k in filtro.keys()])
+                if dados:
+                    where = ' AND '.join([f"{k}=%s" for k in dados.keys()])
                     query = f"SELECT * FROM {tabela} WHERE {where} ALLOW FILTERING"
-                    result = session.execute(query, tuple(filtro.values()))
+                    result = session.execute(query, tuple(dados.values()))
                 else:
                     query = f"SELECT * FROM {tabela}"
                     result = session.execute(query)
@@ -139,6 +152,10 @@ for msg in consumer:
                 }
 
         elif banco == 'mongodb':
+
+
+
+            
             # ===========================
             # Operações no MongoDB
             # ===========================
@@ -154,7 +171,7 @@ for msg in consumer:
                 }
 
             elif operacao == 'buscar':
-                resultados = list(collection.find(filtro, {'_id': False}))
+                resultados = list(collection.find(dados, {'_id': False}))
 
                 resposta = {
                     "status": "sucesso",

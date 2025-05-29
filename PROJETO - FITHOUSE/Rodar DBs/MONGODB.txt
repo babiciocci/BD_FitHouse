@@ -6,7 +6,7 @@ docker run -d --name mongodb -p 27017:27017 -e MONGO_INITDB_ROOT_USERNAME=usuari
 
 PASSO 2: executar o mongo
 
-docker exec -it mongodb mongosh -u usuario -p senha
+docker exec -it mongodb_db mongosh -u root -p rootpass
 
 PASSO 3: criando o database ja
 

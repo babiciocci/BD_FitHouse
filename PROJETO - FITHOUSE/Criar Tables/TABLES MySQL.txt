@@ -4,4 +4,3 @@ CREATE TABLE usuario (
     data_registro DATE NOT NULL,
     foco VARCHAR(255) NOT NULL
 );
-
