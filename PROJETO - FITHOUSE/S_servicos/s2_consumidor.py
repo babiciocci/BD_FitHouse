@@ -1,13 +1,13 @@
 from kafka import KafkaConsumer, KafkaProducer
 import json
+import time
 import mysql.connector
 from cassandra.cluster import Cluster
 from pymongo import MongoClient
+import datetime
 
 
-# =========================
-# Configuração MySQL
-# =========================
+# FAZENDO CONEXAO COM MYSQL
 mysql_conn = mysql.connector.connect(
     host="mysql_db",
     user="user",
@@ -17,23 +17,19 @@ mysql_conn = mysql.connector.connect(
 )
 mysql_cursor = mysql_conn.cursor(dictionary=True)
 
-# # =========================
-# # Configuração Cassandra
-# # =========================
-# cluster = Cluster(['cassandra_db'])
-# session = cluster.connect()
-# session.set_keyspace('db_cassandra')  # Você deve criar esse keyspace antes
 
-# =========================
-# Configuração MongoDB
-# =========================
+# FAZENDO CONEXAO COM CASSANDRA
+cluster = Cluster(['cassandra'], port=9042)
+session = cluster.connect()
+session.set_keyspace('fithouse')
+
+
+# FAZENDO CONEXAO COM MONGODB
 mongo_client = MongoClient('mongodb://root:rootpass@mongodb_db:27017/')
 mongo_db = mongo_client['fithouse']  
 
-# =========================
-# Configuração Kafka
-# =========================
 
+time.sleep(3)
 consumer = KafkaConsumer(
     's1-kafka-s2',
     bootstrap_servers='kafka:9092',
@@ -51,29 +47,38 @@ producer = KafkaProducer(
 
 
 
+def convert_dates(obj):
+    if isinstance(obj, dict):
+        return {k: convert_dates(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_dates(elem) for elem in obj]
+    elif isinstance(obj, (datetime.date, datetime.datetime)):
+        return obj.strftime("%Y-%m-%d")
+    else:
+        return obj
+
+
+
 print("S2 aguardando mensagens...")
 
 
 for msg in consumer:
     mensagem = msg.value
-    print(f"\nMensagem recebida: {json.dumps(mensagem, indent=2, ensure_ascii=False)}")
+    print(f"\nMensagem recebida do S1: {json.dumps(mensagem, indent=2, ensure_ascii=False)}")
 
     banco = mensagem.get('banco')
     operacao = mensagem.get('operacao')
     tabela = mensagem.get('table')
     dados = mensagem.get('dados', {})
 
-    print("tabela: ", mensagem.get('table')) ############# PEGANDO TABELA COMO NULO
-
     resposta = {}
 
     try:
+
+
+
         if banco == 'mysql':
 
-
-            # ====================
-            # Operações no MySQL
-            # ====================
             if operacao == 'inserir':
                 colunas = ', '.join(dados.keys())
                 valores = ', '.join(['%s'] * len(dados))
@@ -82,7 +87,7 @@ for msg in consumer:
                 mysql_conn.commit()
 
                 resposta = {
-                    "status": "sucesso",
+                    "Status MySQL": "sucesso",
                     "mensagem": "Registro inserido no MySQL",
                     "dados": dados
                 }
@@ -95,27 +100,26 @@ for msg in consumer:
                 sql = f"SELECT * FROM {tabela} WHERE {where}"
                 mysql_cursor.execute(sql, tuple(dados.values()))
                 resultado = mysql_cursor.fetchall()
+                resultado = convert_dates(resultado)
 
                 resposta = {
-                    "status": "sucesso",
+                    "Status MySQL": "sucesso",
                     "mensagem": f"Encontrados {len(resultado)} registros no MySQL",
                     "resultado": resultado
                 }
 
+
             else:
                 resposta = {
-                    "status": "erro",
+                    "Status MySQL": "erro",
                     "mensagem": f"Operação '{operacao}' não suportada para MySQL"
                 }
 
+
+
+
         elif banco == 'cassandra':
 
-
-
-
-            # ===========================
-            # Operações no Cassandra
-            # ===========================
             if operacao == 'inserir':
                 colunas = ', '.join(dados.keys())
                 valores = ', '.join(['%s'] * len(dados))
@@ -123,13 +127,13 @@ for msg in consumer:
                 session.execute(query, tuple(dados.values()))
 
                 resposta = {
-                    "status": "sucesso",
+                    "Status Cassandra": "sucesso",
                     "mensagem": "Registro inserido no Cassandra",
                     "dados": dados
                 }
 
             elif operacao == 'buscar':
-                if dados:
+                if dados: 
                     where = ' AND '.join([f"{k}=%s" for k in dados.keys()])
                     query = f"SELECT * FROM {tabela} WHERE {where} ALLOW FILTERING"
                     result = session.execute(query, tuple(dados.values()))
@@ -140,14 +144,14 @@ for msg in consumer:
                 resultado = [dict(row._asdict()) for row in result]
 
                 resposta = {
-                    "status": "sucesso",
+                    "Status Cassandra": "sucesso",
                     "mensagem": f"Encontrados {len(resultado)} registros no Cassandra",
                     "resultado": resultado
                 }
 
             else:
                 resposta = {
-                    "status": "erro",
+                    "Status Cassandra": "erro",
                     "mensagem": f"Operação '{operacao}' não suportada para Cassandra"
                 }
 
@@ -155,17 +159,15 @@ for msg in consumer:
 
 
 
-            
-            # ===========================
-            # Operações no MongoDB
-            # ===========================
+
+
             collection = mongo_db[tabela]
 
             if operacao == 'inserir':
                 collection.insert_one(dados)
 
                 resposta = {
-                    "status": "sucesso",
+                    "Status MongoDB": "sucesso",
                     "mensagem": "Registro inserido no MongoDB",
                     "dados": dados
                 }
@@ -174,26 +176,26 @@ for msg in consumer:
                 resultados = list(collection.find(dados, {'_id': False}))
 
                 resposta = {
-                    "status": "sucesso",
+                    "Status MongoDB": "sucesso",
                     "mensagem": f"Encontrados {len(resultados)} registros no MongoDB",
                     "resultado": resultados
                 }
 
             else:
                 resposta = {
-                    "status": "erro",
+                    "Status MongoDB": "erro",
                     "mensagem": f"Operação '{operacao}' não suportada para MongoDB"
                 }
 
         else:
             resposta = {
-                "status": "erro",
+                "Status": "erro",
                 "mensagem": f"Banco '{banco}' não reconhecido"
             }
 
     except Exception as e:
         resposta = {
-            "status": "erro",
+            "Status": "erro",
             "mensagem": str(e)
         }
 

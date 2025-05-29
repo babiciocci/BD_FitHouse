@@ -75,7 +75,8 @@ services:
 
 
   consumidor:
-    
+    restart:
+      always
     build:
       context: ./S_servicos
       dockerfile: Dockerfile.consumidor

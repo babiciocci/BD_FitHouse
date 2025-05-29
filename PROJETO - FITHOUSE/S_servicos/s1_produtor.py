@@ -25,14 +25,14 @@ def aguardarkafka( delay=3, max_tentativas=30):
             time.sleep(delay)
             tentativas += 1
 
-data_str = "2004-12-26"
-data_convertida = datetime.strptime(data_str, "%Y-%m-%d").date()
 
 if(aguardarkafka):
     # Tópico Kafka
     if __name__ == '__main__':
         topic = 's1-kafka-s2'
         for i in range(0,50):
+
+            # MENSAGENS DO MYSQL
             mensagem = {
                 "banco": "mysql",
                 "operacao": "buscar",
@@ -40,37 +40,48 @@ if(aguardarkafka):
                 "dados": {
                     "id": 1,
                     "nome": "Bruno Basso",
-                "data_registro": data_convertida.strftime("%Y-%m-%d"),
-                "foco": "hypertrophy"
+                    "data_registro": "2004-12-26",
+                    "foco": "hypertrophy"
                 }
             }
 
+            # MENSAGENS DO MONGODB
+            mensagem2 = {
+                "banco": "mongodb",
+                "operacao": "buscar",
+                "table": "treino_usuario",
+                "dados": {
+                    'id': 3215,
+                    'id_usuario': 0,
+                    'id_treino': 733,
+                    'treino_seg': 895,
+                    'treino_ter': 687,
+                    'treino_qua': 761,
+                    'treino_qui': 802,
+                    'treino_sex': 995,
+                    'treino_sab': 733
+                }
+            }
 
-            #mensagem2 = {
-            #     "banco": "mongodb",
-            #     "operacao": "buscar",
-            #     "table": "treino_usuario",
-            #     "dados": {
-            #         'id': 3215,
-            #         'id_usuario': 0,
-            #         'id_treino': 733,
-            #         'treino_seg': 895,
-            #         'treino_ter': 687,
-            #         'treino_qua': 761,
-            #         'treino_qui': 802,
-            #         'treino_sex': 995,
-            #         'treino_sab': 733
-            #     }
-            # }
+            # MENSAGENS DO CASSANDRA
+            mensagem3 = {
+                "banco": "cassandra",
+                "operacao": "buscar",
+                "table": "fithouse.dieta_usuario",
+                "dados": {
+                    # 'id': 2273,
+                    # 'id_dieta': 1078,
+                    'id_usuario': 7
+                }
+            }
+
             producer.send(topic, value=mensagem)
-            #producer.send(topic, value=mensagem2)
-            print("Enviando:", mensagem)
-            #print("Enviando:", mensagem2)
+            producer.send(topic, value=mensagem2)
+            producer.send(topic, value=mensagem3)
+            print("\nMysql: enviado ->", mensagem)
+            print("\nMongodb: enviado ->", mensagem2)
+            print("\nCassandra: enviado ->", mensagem3)
             time.sleep(1)
-
-
-
-
 
 
             
