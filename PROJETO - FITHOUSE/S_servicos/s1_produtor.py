@@ -3,6 +3,8 @@ import time
 import json
 import socket
 from datetime import datetime
+import requests
+import json
 
 # Cria o produtor Kafka
 producer = KafkaProducer(
@@ -27,8 +29,10 @@ def aguardarkafka( delay=3, max_tentativas=30):
 
 
 if(aguardarkafka):
-    # Tópico Kafka
+
+
     if __name__ == '__main__':
+
         topic = 's1-kafka-s2'
         for i in range(0,50):
 
@@ -44,6 +48,14 @@ if(aguardarkafka):
                     "foco": "hypertrophy"
                 }
             }
+
+            producer.send(topic, value=mensagem)
+            print("\nMysql: enviado ->", mensagem)
+
+            # Enviando para o S3 direto
+            res1 = requests.post('http://s3_consolidador:5003/receber_s1', json=mensagem)
+
+            print("Resposta do S3:", res1.status_code, res1.json())
 
             # MENSAGENS DO MONGODB
             mensagem2 = {
@@ -63,6 +75,14 @@ if(aguardarkafka):
                 }
             }
 
+            producer.send(topic, value=mensagem2)
+            print("\nMongodb: enviado ->", mensagem2)
+
+            # Enviando para o S3 direto
+            res2 = requests.post('http://s3_consolidador:5003/receber_s1', json=mensagem2)
+
+            print("Resposta do S3:", res2.status_code, res2.json())
+
             # MENSAGENS DO CASSANDRA
             mensagem3 = {
                 "banco": "cassandra",
@@ -75,12 +95,14 @@ if(aguardarkafka):
                 }
             }
 
-            producer.send(topic, value=mensagem)
-            producer.send(topic, value=mensagem2)
             producer.send(topic, value=mensagem3)
-            print("\nMysql: enviado ->", mensagem)
-            print("\nMongodb: enviado ->", mensagem2)
             print("\nCassandra: enviado ->", mensagem3)
+
+            # Enviando para o S3 direto
+            res3 = requests.post('http://s3_consolidador:5003/receber_s1', json=mensagem2)
+
+            print("Resposta do S3:", res3.status_code, res3.json())
+
             time.sleep(1)
 
 

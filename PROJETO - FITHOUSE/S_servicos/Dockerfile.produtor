@@ -1,5 +1,5 @@
 FROM python:3.9
 WORKDIR /app
 COPY s1_produtor.py /app
-RUN pip install kafka-python mysql-connector-python pymongo cassandra-driver
+RUN pip install kafka-python mysql-connector-python pymongo cassandra-driver requests
 CMD ["python", "s1_produtor.py"]
