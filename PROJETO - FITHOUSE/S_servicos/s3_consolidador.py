@@ -22,8 +22,8 @@ if __name__ == '__main__':
         topico = msg.topic
 
         if topico == 's1-kafka-s2':
-            print("----> S3 recebeu do S1:")
+            print("\n\n----> S3 recebeu do S1:")
         elif topico == 's2-kafka':
-            print("----> S3 recebeu do S2:")
+            print("\n\n----> S3 recebeu do S2:")
 
         print(json.dumps(dados, indent=2, ensure_ascii=False))
