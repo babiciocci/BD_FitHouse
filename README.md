@@ -45,7 +45,7 @@ A escolha dos bancos de dados foi feita com o propósito de explorar novas tecno
 - Consultas rápidas por usuário e período
 - Dados densos e com acesso massivo (ex.: treinos do dia)
 
-# 📦 Passo a Passo para Utilização do Docker
+# 📦 Passo a Passo
 
 ## Pré-requisitos
 
@@ -53,71 +53,43 @@ A escolha dos bancos de dados foi feita com o propósito de explorar novas tecno
 
 ## 🚀 Instruções
 
+Assista o vídeo e acompanhe o passo a passo:  [📺 Tutorial](https://www.youtube.com/watch?v=kL_hDxslnS4)
+
+---
+
 1. **Baixe e instale o Docker Desktop**  
-   👉 [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+   [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
 
-2. **Abra o terminal e execute o seguinte comando para iniciar o container do Cassandra**:
-
-   ```bash
-     docker run --name cassandra-container -d -p 9042:9042 cassandra:latest
-   ```
-
-3. **Verifique se a imagem foi baixada corretamente**:
+2. **Faça um clone do repositório na sua máquina**:
 
    ```bash
-   docker images
+     git clone https://github.com/NOME-DO-REPOSITÓRIO
    ```
 
-4. **Acesse o shell interativo do Cassandra (CQLSH)**:
+3. **Inicialize os serviços**:
 
    ```bash
-   docker exec -it cassandra_db cqlsh
+   docker compose --no-cache
    ```
 
-5. **Caso queira parar o Cassandra**, utilize:
+4. **Rode os containers**:
 
    ```bash
-   exit
+   docker compose up -d
    ```
+
+5. **Crie os databases**
    
-# 🐬 MySQL com Docker + Workbench
+   Para criar os bancos, o passo a passo estão localizadas na pasta "Rodar DB". Cada um dos bancos está explicado nos arquivos .txt
 
-## 🎥 Vídeo de apoio  
-Caso esqueça algum passo, veja o vídeo:  
-[📺 Tutorial MySQL no Docker + Workbench](https://youtu.be/a5ul8o76Hqw?si=DICC2MKbN59JIyoN)
+6. **Criar as tables e os dados em cada um dos bancos**
+   
+   Para criar as tables, as queries estão localizadas na pasta "Criar Tables", para cada banco, copiar e colar o código escrito nos arquivos .txt
 
----
+   Após isso, adicionar os dados em cada banco. Para isso, basta rodar o arquivo "createData.py" para criar dados aleatórios, ou você pode utilizar dos dados já criados como exemplo. Eles estarão nos arquivos que se chama codeNOME-DO-BANCO.txt 
 
-## 🛠️ Instalar o MySQL Workbench
+7. **Escrever em "mensagens" quais são os valores que você deseja buscar**
 
-Baixe o instalador oficial:  
-🔗 [https://dev.mysql.com/downloads/windows/installer/8.0.html](https://dev.mysql.com/downloads/windows/installer/8.0.html)
+   Localizados no arquivo s1_produtor.py
 
-Durante a instalação:
 
-- Selecione a opção **Custom**
-- Instale a **versão mais atual** de:
-  - **MySQL Server**
-  - **MySQL Workbench**
-  - **MySQL Examples and Samples**
-- Defina uma **senha segura** para o usuário `root`
-
----
-
-## 🐳 Inicializar o MySQL no Docker
-
-### Fazer linha por linha
-
-Usar o docker-compose-mysql.yml para poder rodar e dps executa-lo
-```bash
-docker exec -it mysql-db mysql -u root -p
-```
-
-## 📦 Inicializar o MONGODB no Docker
-
-### Fazer linha por linha
-
-Usar o docker-compose-mongodb.yml para poder rodar e dps executa-lo
-```bash
-docker exec -it mongodb mongosh -u root -p root
-```
